@@ -1,0 +1,10 @@
+PyYAML
+pandas
+numpy
+matplotlib
+plotly
+jupyter
+dash
+dash_bootstrap_components
+flask_caching
+randomname
