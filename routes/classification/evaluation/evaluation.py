@@ -4,29 +4,31 @@ from dash.exceptions import PreventUpdate
 import plotly.express as px
 
 from app import app
-from services.classification_service import evaluate_classifier, save_model
+from routes.classification.constants import DIV_EVALUATION, LOADING_GENERATE_MODEL_OUTPUT, BUTTON_GENERATE_MODEL, \
+    DROPDOWN_FILES, BUTTON_SAVE_MODEL, INPUT_MODEL_NAME, P_TEMP_MODEL_ID, DIV_MODEL_SAVED
+from services.classification import train_evaluate, save_model
 
-evaluation = html.Div(id='classification-evaluation')
+evaluation = html.Div(id=DIV_EVALUATION)
 
 
 @app.callback(
-    Output("classification-loading-output-1", "children"),
-    Output("classification-evaluation", "children"),
-    Input("classification-select-button", "n_clicks"),
-    State("classification-demo-dropdown", "value")
+    Output(LOADING_GENERATE_MODEL_OUTPUT, "children"),
+    Output(DIV_EVALUATION, "children"),
+    Input(BUTTON_GENERATE_MODEL, "n_clicks"),
+    State(DROPDOWN_FILES, "value")
 )
-def generate_model_button(n_clicks, filename):
+def generate_model_button(n_clicks, doc_id):
     if n_clicks <= 0:
         raise PreventUpdate
-    print("Confirm and continue: {}".format(filename))
+    print("Generate model pressed. Confirm and continue: {}".format(doc_id))
 
-    n_features, training_time, perf_metrics, cm, random_id, fig3, fig4 = evaluate_classifier(filename)
+    n_features, training_time, perf_metrics, cm, random_id, fig3, fig4 = train_evaluate(doc_id)
 
     fig = px.imshow(cm, title="Confusion matrix",
                     labels={'x': 'predicted (y_pred)', 'y': 'actual (y_test)'})
 
     print("returning update_evaluation")
-    return filename, html.Div([
+    return doc_id, html.Div([
         html.H4("Classifier Evaluation"),
         html.P(
             "Use the information below to evaluate the classifier"),
@@ -48,17 +50,17 @@ def generate_model_button(n_clicks, filename):
         html.Br(),
         html.Br(),
         html.P("Save the model for further use"),
-        dcc.Input(id="classification-model-name"),
-        dbc.Button(id="classification-save-model", n_clicks=0, children='Save Model'),
-        html.P(id="classification-temp-model-id", children=random_id)
+        dcc.Input(id=INPUT_MODEL_NAME),
+        dbc.Button(id=BUTTON_SAVE_MODEL, n_clicks=0, children='Save Model'),
+        html.P(id=P_TEMP_MODEL_ID, children=random_id)
     ])
 
 
 @app.callback(
-    Output("classification-model-saved", "children"),
-    Input("classification-save-model", "n_clicks"),
-    State("classification-model-name", "value"),
-    State('classification-temp-model-id', 'children')
+    Output(DIV_MODEL_SAVED, "children"),
+    Input(BUTTON_SAVE_MODEL, "n_clicks"),
+    State(INPUT_MODEL_NAME, "value"),
+    State(P_TEMP_MODEL_ID, 'children')
 )
 def classification_save_model(n_clicks, name, temp_model_id):
     if n_clicks <= 0:

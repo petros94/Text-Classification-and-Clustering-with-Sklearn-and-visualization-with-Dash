@@ -2,7 +2,7 @@ from dash import html, dcc, Output, Input, State
 import dash_bootstrap_components as dbc
 
 from app import app
-from services.cluster_service import evaluate_cluster, generate_optimal_cluster_figures
+from services.clustering import evaluate_cluster, generate_optimal_cluster_figures
 
 cluster_tuning = html.Div(id="cluster_tuning")
 

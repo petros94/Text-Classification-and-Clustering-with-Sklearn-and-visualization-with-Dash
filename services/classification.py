@@ -1,5 +1,6 @@
 import base64
 import io
+import pickle
 import uuid
 
 import pandas as pd
@@ -8,16 +9,14 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from config.cache import cache
-from models.classification import TextClassification
-from models.clustering import TextClustering
-from services.text_preprocessing import generate_tfidf
+from models.text_classifier import TextClassifier, save_model as save, load_model as load
+from services.storage import find_classification_doc_by_id
 from util import TextPreprocessor
 
 
-def evaluate_classifier(filename):
-    df = cache.get(filename)
-    tcf = TextClassification()
+def train_evaluate(doc_id):
+    df = find_classification_doc_by_id(doc_id)['content']
+    tcf = TextClassifier()
     X_train, X_test, y_train, y_test = train_test_split(df.input, df.label, test_size=0.2)
     print("Training model")
     n_features, training_time = tcf.train(X_train, y_train)
@@ -39,7 +38,7 @@ def evaluate_classifier(filename):
     cm = confusion_matrix(y_test, y_pred, labels=labels)
     df_cm = pd.DataFrame(cm, columns=labels, index=labels)
     random_id = "temp-" + str(uuid.uuid4())
-    cache.set(random_id, tcf)
+    save(random_id, tcf, temp=True)
 
     svd = TruncatedSVD(n_components=5)
     vb = tcf.tpr.vocabulary
@@ -55,17 +54,14 @@ def evaluate_classifier(filename):
 
 def save_model(name, temp_model_id):
     print("Entered save_model with args: {}, {}".format(name, temp_model_id))
-    tcf = cache.get(temp_model_id)
-
-    models = cache.get('classification-models')
-    models.append(name)
-    cache.set(name + "-model", tcf)
-    cache.set('classification-models', models)
+    tcf = load(temp_model_id, temp=True)
+    print("loaded temp model: ", tcf)
+    save(name, tcf, temp=False)
 
 
-def predict_text_label(model, text):
-    print("Entered predict_text_label with args: {}, {}".format(model, text))
-    tcf = cache.get(model + "-model")
+def predict_text_label(model_id, text):
+    print("Entered predict_text_label with args: {}, {}".format(model_id, text))
+    tcf = load(model_id, temp=False)
     return tcf.predict(pd.Series([text]), prob=True)
 
 

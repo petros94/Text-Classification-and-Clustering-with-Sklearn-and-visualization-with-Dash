@@ -1,6 +1,7 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+from routes.classification.constants import *
 from routes.classification.evaluation.evaluation import evaluation
 from routes.classification.stored.stored_component import stored
 from routes.classification.testing.testing import testing
@@ -27,17 +28,17 @@ classification = dbc.Container([
         ]
     ),
     dbc.Col(stored, xs=6),
-    dbc.Button(id='classification-select-button', n_clicks=0, children='Generate TFIDF & Train Classifier'),
+    dbc.Button(id=BUTTON_GENERATE_MODEL, n_clicks=0, children='Generate TFIDF & Train Classifier'),
     dcc.Loading(
-        id="classification-loading-1",
+        id=LOADING_GENERATE_MODEL,
         type="default",
-        children=html.Div(id="classification-loading-output-1")
+        children=html.Div(id=LOADING_GENERATE_MODEL_OUTPUT)
     ),
     html.Br(),
     html.Br(),
     html.Br(),
     evaluation,
-    html.Div(id="classification-model-saved"),
+    html.Div(id=DIV_MODEL_SAVED),
     html.Br(),
     html.Br(),
     html.Br(),
@@ -50,6 +51,6 @@ classification = dbc.Container([
     html.Hr(),
     testing,
     html.Div([
-        dbc.Button(id="hidden-button-2", n_clicks=0, children="hidden", style={"display": "hidden"}),
+        dbc.Button(id=BUTTON_HIDDEN, n_clicks=0, children="hidden", style={"display": "hidden"}),
     ], style={'display': 'none'}),
 ])

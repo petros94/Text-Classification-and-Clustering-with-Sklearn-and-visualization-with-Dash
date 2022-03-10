@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 
 from app import app
-from services.cluster_service import predict_text_cluster
+from services.clustering import predict_text_cluster
 
 cluster_testing = html.Div([
     html.H4("Test clustering"),

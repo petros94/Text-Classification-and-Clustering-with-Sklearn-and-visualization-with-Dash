@@ -5,8 +5,8 @@ import uuid
 import pandas as pd
 
 from config.cache import cache
-from models.clustering import TextClustering
-from services.text_preprocessing import generate_tfidf
+from models.text_cluster import TextClustering
+from services.preprocessing import generate_tfidf
 from util import TextPreprocessor
 
 

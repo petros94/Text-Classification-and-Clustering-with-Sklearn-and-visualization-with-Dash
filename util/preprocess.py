@@ -6,7 +6,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 
 
 class TextPreprocessor:
-    def __init__(self, drop_common_words=False, vocabulary=None):
+    def  __init__(self, drop_common_words=False, vocabulary=None):
         self.punctuations = string.punctuation
         self.stop_words = spacy.lang.en.stop_words.STOP_WORDS
         self.nlp = spacy.load('en_core_web_sm')

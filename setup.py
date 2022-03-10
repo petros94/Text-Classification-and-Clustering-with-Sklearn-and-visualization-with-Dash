@@ -14,6 +14,7 @@ setup(
         'dash',
         'dash_bootstrap_components',
         'flask_caching',
-        'randomname'
+        'randomname',
+        'flask_pymongo'
     ]
 )

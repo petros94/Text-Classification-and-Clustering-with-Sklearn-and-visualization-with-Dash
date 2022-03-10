@@ -5,7 +5,7 @@ from dash.exceptions import PreventUpdate
 
 from app import app
 from config.cache import cache
-from services.cluster_service import evaluate_cluster, save_model
+from services.clustering import evaluate_cluster, save_model
 
 cluster_eval = html.Div([
     html.Div(id='evaluation')

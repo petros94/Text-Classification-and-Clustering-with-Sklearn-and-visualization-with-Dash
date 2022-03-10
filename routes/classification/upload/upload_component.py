@@ -1,16 +1,19 @@
 import base64
 import datetime
 import io
+import pickle
 
 import pandas as pd
 from dash import dcc, html, Output, Input, State, dash_table
 from dash.exceptions import PreventUpdate
 
 from app import app, cache
+from routes.classification.constants import *
+from services.storage import insert_classification_doc
 
 upload = html.Div([
     dcc.Upload(
-        id='classification-upload-data',
+        id=UPLOAD_UPLOAD_DATA,
         children=html.Div([
             'Drag and Drop or ',
             html.A('Select Files')
@@ -28,7 +31,7 @@ upload = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
-    html.Div(id='classification-output-data-upload'),
+    html.Div(id=DIV_UPLOAD_DATA),
 ])
 
 
@@ -54,12 +57,9 @@ def parse_contents(contents, filename, date):
         ])
 
     if df is not None:
-        files = cache.get('classification-files')
-        files.append(filename)
+        insert_classification_doc(filename, df)
+        print("Stored file in storage", filename)
 
-        cache.set(filename, df)
-        cache.set('classification-files', files)
-        print("Stored in classification-cache", filename)
 
     return html.Div([
         html.H5(filename),
@@ -80,14 +80,13 @@ def parse_contents(contents, filename, date):
 
 
 @app.callback(
-    Output('classification-output-data-upload', 'children'), [
-    Input('classification-upload-data', 'contents'),
-    State('classification-upload-data', 'filename'),
-    State('classification-upload-data', 'last_modified')
+    Output(DIV_UPLOAD_DATA, 'children'), [
+    Input(UPLOAD_UPLOAD_DATA, 'contents'),
+    State(UPLOAD_UPLOAD_DATA, 'filename'),
+    State(UPLOAD_UPLOAD_DATA, 'last_modified')
 ])
 def update_output(list_of_contents, list_of_names, list_of_dates):
     print("callback upload component")
-    print(cache.get('classification-files'))
     if list_of_contents is not None:
         children = [
             parse_contents(c, n, d) for c, n, d in

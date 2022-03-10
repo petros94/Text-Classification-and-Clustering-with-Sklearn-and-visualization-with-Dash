@@ -7,7 +7,7 @@ from dash import dcc, html, Output, Input, State, dash_table
 import dash_bootstrap_components as dbc
 
 from app import app, cache
-from services.cluster_service import TextClustering, generate_optimal_cluster_figures
+from services.clustering import TextClustering, generate_optimal_cluster_figures
 from util import TextPreprocessor
 
 stored = html.Div([
