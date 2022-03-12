@@ -7,13 +7,14 @@ from routes.clustering.stored.stored_component import stored
 from routes.clustering.testing.cluster_testing import cluster_testing
 from routes.clustering.tuning.cluster_tuning import cluster_tuning
 from routes.clustering.upload.upload_component import upload
-
+from routes.clustering.welcome.welcome import welcome
 
 clustering = dbc.Container(
     [
         html.H1("Text Clustering App"),
         html.H5("This app is used to cluster text data using TFIDF and K-Means.", className="lead"),
         html.Hr(),
+        welcome,
         html.Br(),
         html.Div([
             html.I(className="fas fa-hammer", style={'margin-right': 10, 'font-size': 'x-large', 'color': 'brown'}),

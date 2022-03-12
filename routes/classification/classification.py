@@ -6,11 +6,13 @@ from routes.classification.evaluation.evaluation import evaluation
 from routes.classification.stored.stored_component import stored
 from routes.classification.testing.testing import testing
 from routes.classification.upload.upload_component import upload
+from routes.classification.welcome.welcome import welcome
 
 classification = dbc.Container([
     html.H1("Text Classification App"),
     html.H5("This app is used to classify text data using TFIDF and Naive Bayes.", className="lead"),
     html.Hr(),
+    welcome,
     html.Br(),
     html.Div([
         html.I(className="fas fa-hammer", style={'margin-right': 10, 'font-size': 'x-large', 'color': 'brown'}),
