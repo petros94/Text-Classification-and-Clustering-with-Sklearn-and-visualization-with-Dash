@@ -11,6 +11,8 @@ from config.cache import cache
 def find_all_classifications_models():
     return mongo.db.tcfmodels.find({}, {"_id": 1, "name": 1})
 
+def find_all_cluster_models():
+    return mongo.db.tclmodels.find({}, {"_id": 1, "name": 1})
 
 def load_classification_model(model_id, temp=False):
     if temp:
@@ -62,7 +64,7 @@ def find_classification_doc_by_id(doc_id):
 
 
 def find_clustering_doc_by_id(doc_id):
-    doc = pickle.loads(mongo.db.tcfdocs.find_one({"_id": ObjectId(doc_id)}))
+    doc = mongo.db.tcldocs.find_one({"_id": ObjectId(doc_id)})
     return {'filename': doc['filename'], 'content': pickle.loads(doc['content'])}
 
 

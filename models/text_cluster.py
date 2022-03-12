@@ -1,3 +1,5 @@
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
@@ -5,37 +7,50 @@ import pandas as pd
 from matplotlib import cm
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, silhouette_samples
-from util import import_data, TextPreprocessor
+from services.storage import load_cluster_model as load
+from services.storage import save_cluster_model as save
+from util import TextPreprocessor
 
 pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 
 class TextClustering:
-    def __init__(self, raw_data, tfidf_matrix, tfidf_vector, cluster_size=6):
-        self.raw_data = raw_data
-        self.tfidf_matrix = tfidf_matrix
-        self.tfidf_vector = tfidf_vector
+    def __init__(self, model=None, vocabulary=None, cluster_size=6, top_terms=None, cluster_names=None, clustered_data=None):
         self.cluster_size = cluster_size
-        self.kmeans = None
-        self.clustered_data = None
+        self.kmeans = model
+        self.clustered_data = clustered_data
+        self.tpr = TextPreprocessor(vocabulary=vocabulary)
+        self.top_terms = top_terms
+        self.cluster_names = cluster_names
 
-    def predict(self, new_tfidf_matrix):
-        return self.kmeans.predict(new_tfidf_matrix)
+    def predict(self, raw_text):
+        vb = self.tpr.vocabulary
+        tpr = TextPreprocessor(vocabulary=vb)
+        tfidf_vector, tfidf_matrix, _ = tpr.generate_tfidf(raw_text, debug=False, dense=False)
+        return self.kmeans.predict(tfidf_matrix)
 
-    def fit_kmeans(self, cluster_size, plot=True, debug=False, dash=False):
+    def generate_tfidf(self, raw_text):
+        tfidf_vector, tfidf_matrix, _ = self.tpr.generate_tfidf(raw_text, debug=False, dense=False)
+
+    def train(self, raw_text, cluster_size, skip_tfidf=False):
+        if not skip_tfidf:
+            tfidf_vector, tfidf_matrix, _ = self.tpr.generate_tfidf(raw_text, debug=False, dense=False)
+        return self.fit_kmeans(raw_text, cluster_size, dash=True)
+
+    def fit_kmeans(self, raw_text, cluster_size, plot=True, debug=False, dash=False):
         self.cluster_size = cluster_size
-        self.kmeans = KMeans(n_clusters=self.cluster_size).fit(self.tfidf_matrix)
-        pred = self.kmeans.predict(self.tfidf_matrix)
+        self.kmeans = KMeans(n_clusters=self.cluster_size).fit(self.tpr.tfidf_matrix)
+        pred = self.kmeans.predict(self.tpr.tfidf_matrix)
 
-        self.clustered_data = self.raw_data.join(pd.DataFrame({'pred': pred}))
+        self.clustered_data = pd.DataFrame({'input': raw_text}).join(pd.DataFrame({'pred': pred}))
 
         total = self.clustered_data.groupby("pred").size()
         self.clustered_data = self.clustered_data.join(
             pd.DataFrame({'total_in_group': self.clustered_data.apply(lambda row: total[row['pred']], axis=1).to_list()}))
 
-        top_terms = self.top_terms_per_cluster(debug=debug)
+        self.top_terms = self.top_terms_per_cluster(debug=debug)
         self.clustered_data = self.clustered_data.join(
-            pd.DataFrame({"top_terms": self.clustered_data.apply(lambda row: top_terms[row["pred"]], axis=1).to_list()}))
+            pd.DataFrame({"top_terms": self.clustered_data.apply(lambda row: self.top_terms[row["pred"]], axis=1).to_list()}))
 
         if plot and not dash:
             fig = px.bar(total.sort_values(), width=400, height=400)
@@ -54,9 +69,9 @@ class TextClustering:
         sil_score = [0]*len(iters)
         for n in range(runs):
             for k in iters:
-                kmeans = KMeans(n_clusters=k).fit(self.tfidf_matrix)
-                pred = kmeans.predict(self.tfidf_matrix)
-                sil_score[k-2] += silhouette_score(self.tfidf_matrix, pred)/runs
+                kmeans = KMeans(n_clusters=k).fit(self.tpr.tfidf_matrix)
+                pred = kmeans.predict(self.tpr.tfidf_matrix)
+                sil_score[k-2] += silhouette_score(self.tpr.tfidf_matrix, pred)/runs
                 sse[k-2] += kmeans.inertia_/runs
                 if debug:
                     print('Fit {} clusters'.format(k))
@@ -95,7 +110,7 @@ class TextClustering:
             print("Top terms per cluster:")
         output = dict()
         order_centroids = self.kmeans.cluster_centers_.argsort()[:, ::-1]
-        terms = self.tfidf_vector.get_feature_names()
+        terms = self.tpr.tfidf_transformer.get_feature_names()
         for i in range(self.kmeans.n_clusters):
             if debug:
                 print("Cluster %d:" % i, end='')
@@ -109,7 +124,7 @@ class TextClustering:
         return output
 
     def plot_silhouette(self, plot=True):
-        dense_tfidf_matrix = self.tfidf_matrix.todense()
+        dense_tfidf_matrix = self.tpr.tfidf_matrix.todense()
         for n_clusters in [self.cluster_size]:
             # Create a subplot with 1 row and 1 columns
             fig, ax1 = plt.subplots(1, 1)
@@ -189,3 +204,22 @@ class TextClustering:
         if plot:
             plt.show()
         return plt
+
+def load_model(model_name, temp):
+    obj = load(model_name, temp=temp)
+    cls = obj['clustering']
+    voc = obj['vocabulary']
+    terms = obj['terms']
+    names = obj['names']
+    clustered_data = obj['data']
+    return TextClustering(model=cls, vocabulary=voc, top_terms=terms, cluster_names=names, clustered_data=clustered_data)
+
+def save_model(model_name, clf, temp):
+    obj = {
+        'clustering': clf.kmeans,
+        'vocabulary': clf.tpr.vocabulary,
+        'terms': clf.top_terms,
+        'names': clf.cluster_names,
+        'data': clf.clustered_data if temp else None
+    }
+    save(model_name, obj, temp=temp)

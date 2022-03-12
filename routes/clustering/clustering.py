@@ -1,11 +1,13 @@
-from dash import html, dcc
+from dash import html, dcc, Output, Input, State
 import dash_bootstrap_components as dbc
 
+from routes.clustering.constants import *
 from routes.clustering.evaluation.cluster_evaluation import cluster_eval
 from routes.clustering.stored.stored_component import stored
 from routes.clustering.testing.cluster_testing import cluster_testing
 from routes.clustering.tuning.cluster_tuning import cluster_tuning
 from routes.clustering.upload.upload_component import upload
+
 
 clustering = dbc.Container(
     [
@@ -28,11 +30,11 @@ clustering = dbc.Container(
             ]
         ),
         dbc.Col(stored, xs=6),
-        dbc.Button(id='select-button', n_clicks=0, children='Generate TFIDF & Tuning plots'),
+        dbc.Button(id=BUTTON_GENERATE_MODEL, n_clicks=0, children='Generate TFIDF & Tuning plots'),
         dcc.Loading(
-            id="loading-1",
+            id=LOADING_GENERATE_MODEL,
             type="default",
-            children=html.Div(id="loading-output-1")
+            children=html.Div(id=LOADING_GENERATE_MODEL_OUTPUT)
         ),
         html.Br(),
         html.Br(),
@@ -42,7 +44,7 @@ clustering = dbc.Container(
         html.Br(),
         html.Br(),
         cluster_eval,
-        html.Div(id="model-saved"),
+        html.Div(id=DIV_MODEL_SAVED),
         html.Br(),
         html.Br(),
         html.Br(),
@@ -55,8 +57,7 @@ clustering = dbc.Container(
         html.Hr(),
         cluster_testing,
         html.Div([
-            dbc.Button(id="hidden-button", n_clicks=0, children="hidden", style={"display": "hidden"}),
+            dbc.Button(id=BUTTON_HIDDEN, n_clicks=0, children="hidden", style={"display": "hidden"}),
         ], style={'display': 'none'}),
-        dcc.Store(id='selected-dataset')
     ],
 )

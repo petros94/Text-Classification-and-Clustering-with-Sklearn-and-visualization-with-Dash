@@ -1,8 +1,8 @@
 from dash import html, dcc, Output, Input, State, dash_table
 import dash_bootstrap_components as dbc
-from dash.exceptions import PreventUpdate
 
 from app import app
+from routes.clustering.constants import *
 from services.clustering import predict_text_cluster
 
 cluster_testing = html.Div([
@@ -11,28 +11,28 @@ cluster_testing = html.Div([
     dbc.Row([
         dbc.Col([
             html.P("Choose model:"),
-            dcc.Dropdown(id="models-dropdown")
+            dcc.Dropdown(id=DROPDOWN_MODELS)
         ]),
         dbc.Col([
             dcc.Textarea(
-                id='textarea-state-example',
+                id=TEXTAREA_MODEL_PREDICT,
                 style={'width': '100%', 'height': 200},
             ),
-            dbc.Button(children='Submit', id='test-model-button', n_clicks=0),
+            dbc.Button(children='Submit', id=BUTTON_MODEL_PREDICT, n_clicks=0),
         ])
     ]),
-    html.Div(id="textarea-state-example-output")
+    html.Div(id=DIV_CLUSTER_ASSIGN)
 ])
 
 
 @app.callback(
-    Output('textarea-state-example-output', 'children'),
-    Input('test-model-button', 'n_clicks'),
-    State('models-dropdown', 'value'),
-    State('textarea-state-example', 'value')
+    Output(DIV_CLUSTER_ASSIGN, 'children'),
+    Input(BUTTON_MODEL_PREDICT, 'n_clicks'),
+    State(DROPDOWN_MODELS, 'value'),
+    State(TEXTAREA_MODEL_PREDICT, 'value')
 )
 def test_model(n_clicks, model, value):
     print("Entered test_model with args: {}, {}, {}".format(n_clicks, model, value))
     if n_clicks > 0 and model is not None:
-        pred, top_terms = predict_text_cluster(model, value)
-        return 'Text will be assigned to cluster: {}. Top terms for this cluster: {}'.format(str(pred), str(top_terms))
+        pred, top_terms, cluster_name = predict_text_cluster(model, value)
+        return 'Text will be assigned to cluster {}: {}. Top terms for this cluster: {}'.format(str(pred), cluster_name, str(top_terms))

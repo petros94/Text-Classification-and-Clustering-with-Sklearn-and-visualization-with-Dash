@@ -7,11 +7,12 @@ from dash import dcc, html, Output, Input, State, dash_table
 from dash.exceptions import PreventUpdate
 
 from app import app, cache
-from util import import_data
+from routes.clustering.constants import *
+from services.storage import insert_cluster_doc
 
 upload = html.Div([
     dcc.Upload(
-        id='upload-data',
+        id=UPLOAD_UPLOAD_DATA,
         children=html.Div([
             'Drag and Drop or ',
             html.A('Select Files')
@@ -29,7 +30,7 @@ upload = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
-    html.Div(id='output-data-upload'),
+    html.Div(id=DIV_UPLOAD_DATA, style={"display": "hidden"}),
 ])
 
 
@@ -55,40 +56,20 @@ def parse_contents(contents, filename, date):
         ])
 
     if df is not None:
-        files = cache.get('files')
-        files.append(filename)
+        insert_cluster_doc(filename, df)
+        print("Stored file in storage", filename)
 
-        cache.set(filename, df)
-        cache.set('files', files)
-        print("Stored in cache", filename)
-
-    return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-
-        dash_table.DataTable(
-            data = df.to_dict('records'),
-            columns = [{'name': i, 'id': i} for i in df.columns],
-            style_cell={"whiteSpace": "pre-line"},
-            page_action="native",
-            page_current=0,
-            page_size=5,
-        ),
-
-        html.Hr(),  # horizontal line
-
-    ])
+    return html.P(children=filename)
 
 
 @app.callback(
-    Output('output-data-upload', 'children'), [
-    Input('upload-data', 'contents'),
-    State('upload-data', 'filename'),
-    State('upload-data', 'last_modified')
+    Output(DIV_UPLOAD_DATA, 'children'), [
+    Input(UPLOAD_UPLOAD_DATA, 'contents'),
+    State(UPLOAD_UPLOAD_DATA, 'filename'),
+    State(UPLOAD_UPLOAD_DATA, 'last_modified')
 ])
 def update_output(list_of_contents, list_of_names, list_of_dates):
     print("callback upload component")
-    print(cache.get('files'))
     if list_of_contents is not None:
         children = [
             parse_contents(c, n, d) for c, n, d in

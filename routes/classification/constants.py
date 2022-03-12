@@ -10,6 +10,7 @@ LOADING_GENERATE_MODEL_OUTPUT = 'classification-loading-output-1'
 
 DIV_MODEL_SAVED = 'classification-model-saved'
 DIV_UPLOAD_DATA = 'classification-output-data-upload'
+DIV_STORED_DATA_PREVIEW = 'classification-stored-data-preview'
 DIV_EVALUATION = 'classification-evaluation'
 DIV_CLASS_PROBS = 'class-probs'
 

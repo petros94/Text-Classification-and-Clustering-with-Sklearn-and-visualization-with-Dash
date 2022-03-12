@@ -5,24 +5,23 @@ import uuid
 import pandas as pd
 
 from config.cache import cache
-from models.text_cluster import TextClustering
+from models.text_cluster import TextClustering, load_model, save_model as save
 from services.preprocessing import generate_tfidf
-from util import TextPreprocessor
+from services.storage import find_clustering_doc_by_id
 
 
 @cache.memoize()
 def generate_optimal_cluster_figures(filename):
-    df = cache.get(filename)
-    tfidf_vector, tfidf_matrix, dense = generate_tfidf(filename)
-    tcl = TextClustering(df, tfidf_matrix, tfidf_vector, 12)
+    df = find_clustering_doc_by_id(filename)['content']
+    tcl = TextClustering()
+    tcl.generate_tfidf(df.input)
     sil_fig, sse_fig = tcl.find_optimal_clusters(20, debug=True, plot=False, fixed_size=False)
     return sil_fig, sse_fig
 
-def evaluate_cluster(n_clusters, filename):
-    df = cache.get(filename)
-    tfidf_vector, tfidf_matrix, dense = generate_tfidf(filename)
-    tcl = TextClustering(df, tfidf_matrix, tfidf_vector, n_clusters)
-    clustered_data, fig = tcl.fit_kmeans(n_clusters, dash=True)
+def evaluate_cluster(n_clusters, doc_id):
+    df = find_clustering_doc_by_id(doc_id)['content']
+    tcl = TextClustering(cluster_size=n_clusters)
+    clustered_data, fig = tcl.train(df.input, n_clusters)
 
     top_terms = []
 
@@ -40,36 +39,26 @@ def evaluate_cluster(n_clusters, filename):
     img_sil = "data:image/png;base64,{}".format(data)
 
     random_id = "temp-" + str(uuid.uuid4())
-    cache.set(random_id, tcl)
+    save(random_id, tcl, temp=True)
 
     return clustered_data, top_terms, fig, img_sil, random_id
 
 
-def save_model(name, n_clusters, filename, temp_model_id):
-    print("Entered save_model with args: {}, {}, {}".format(name, n_clusters, filename))
-    tcl = cache.get(temp_model_id)
-
-    models = cache.get('models')
-    models.append(name)
-    cache.set(name + "-model", tcl)
-    cache.set('models', models)
+def save_model(name, n_clusters, filename, temp_model_id, cluster_names):
+    print("Entered save_model with args: {}, {}, {}, {}".format(name, n_clusters, filename, cluster_names))
+    tcl = load_model(temp_model_id, temp=True)
+    tcl.cluster_names = cluster_names
+    print("loaded temp model")
+    save(name, tcl, temp=False)
 
 
 def predict_text_cluster(model, text):
     print("Entered predict_text_cluster with args: {}, {}".format(model, text))
-    tcl = cache.get(model + "-model")
-    vb = tcl.tfidf_vector.vocabulary_
-
-    tpr = TextPreprocessor(drop_common_words=False, vocabulary=vb)
-    tfidf_vector, tfidf_matrix, dense = tpr.generate_tfidf(pd.Series([text]), fast=False)
-    pred = tcl.predict(tfidf_matrix)[0]
+    tcl = load_model(model, temp=False)
+    pred = tcl.predict(pd.Series([text]))[0]
     print(pred)
-
-    idx = tcl.clustered_data.pred == pred
-    print(idx)
-    top_terms = tcl.clustered_data.loc[idx, 'top_terms'].iloc[0]
-    print(top_terms)
-
-    return pred, top_terms
+    top_terms = tcl.top_terms[pred]
+    cluster_name = tcl.cluster_names[pred]
+    return pred, top_terms, cluster_name
 
 

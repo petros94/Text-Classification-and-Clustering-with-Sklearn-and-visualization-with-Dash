@@ -9,7 +9,7 @@ from dash.exceptions import PreventUpdate
 
 from app import app, cache
 from routes.classification.constants import *
-from services.storage import insert_classification_doc
+from services.storage import insert_classification_doc, find_classification_doc_by_id
 
 upload = html.Div([
     dcc.Upload(
@@ -31,7 +31,7 @@ upload = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
-    html.Div(id=DIV_UPLOAD_DATA),
+    html.Div(id=DIV_UPLOAD_DATA, style={"display": "hidden"}),
 ])
 
 
@@ -60,23 +60,7 @@ def parse_contents(contents, filename, date):
         insert_classification_doc(filename, df)
         print("Stored file in storage", filename)
 
-
-    return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-
-        dash_table.DataTable(
-            data = df.to_dict('records'),
-            columns = [{'name': i, 'id': i} for i in df.columns],
-            style_cell={"whiteSpace": "pre-line"},
-            page_action="native",
-            page_current=0,
-            page_size=5,
-        ),
-
-        html.Hr(),  # horizontal line
-
-    ])
+    return html.P(children=filename)
 
 
 @app.callback(

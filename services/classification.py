@@ -1,6 +1,3 @@
-import base64
-import io
-import pickle
 import uuid
 
 import pandas as pd
@@ -28,7 +25,7 @@ def train_evaluate(doc_id):
     y_pred, pred_time = tcf.predict(X_test)
     acc = tcf.accuracy_score(X_test, y_test)
     pre, rec, f1, sup = precision_recall_fscore_support(y_test, y_pred, labels=labels)
-    metrics_exp_0 = pd.DataFrame({'Accuracy': [acc] * 5,
+    metrics_exp_0 = pd.DataFrame({'Accuracy': [acc] * len(labels),
                                   'Precision': pre,
                                   'Recall': rec,
                                   'F1': f1,

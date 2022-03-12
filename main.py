@@ -10,6 +10,8 @@ this feature you must install dash-bootstrap-components >= 0.11.0.
 For more details on building multi-page Dash applications, check out the Dash
 documentation: https://dash.plot.ly/urls
 """
+import os
+
 import dash_bootstrap_components as dbc
 from dash import dcc, html, Output, Input
 from app import app
@@ -70,5 +72,6 @@ def render_page_content(pathname):
 
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
-if __name__ == "__main__":
+server = app.server
+if __name__ == "__main__" and os.environ.get("PROFILE") != "prod":
     app.run_server(port=8080, debug=True, host="0.0.0.0")

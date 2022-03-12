@@ -1,18 +1,23 @@
 from dash import html, dcc, Output, Input, State
 import dash_bootstrap_components as dbc
+from dash.exceptions import PreventUpdate
 
 from app import app
-from services.clustering import evaluate_cluster, generate_optimal_cluster_figures
+from routes.clustering.constants import *
+from services.clustering import generate_optimal_cluster_figures
 
-cluster_tuning = html.Div(id="cluster_tuning")
+cluster_tuning = html.Div(id=DIV_TUNING)
 
 @app.callback(
-    Output("loading-output-1", "children"),
-    Output('cluster_tuning', 'children'),
-    Input('select-button', 'n_clicks'),
-    State('demo-dropdown', 'value')
+    Output(LOADING_GENERATE_MODEL_OUTPUT, "children"),
+    Output(DIV_TUNING, 'children'),
+    Input(BUTTON_GENERATE_MODEL, 'n_clicks'),
+    State(DROPDOWN_FILES, 'value')
 )
 def update_output(n_clicks, value):
+    if n_clicks <= 0:
+        raise PreventUpdate
+
     print("Selected ", value)
     fig1, fig2 = generate_optimal_cluster_figures(value)
     return value, html.Div([
@@ -38,18 +43,18 @@ def update_output(n_clicks, value):
                     dcc.Slider(min=2, max=20, dots=True,
                                value=2,
                                tooltip={"placement": "bottom", "always_visible": True},
-                               id='n-clusters-slider'
+                               id=SLIDER_N_CLUSTERS
                                ),
-                    html.Div(id='n-clusters-slider-output-container')
+                    html.Div(id=DIV_N_CLUSTERS)
                 ], xs=6),
             ])])
         ,
-        dbc.Button(id='select-n-clusters-button', n_clicks=0, children='Confirm and evaluate'),
+        dbc.Button(id=BUTTON_SELECT_CLUSTERS, n_clicks=0, children='Confirm and evaluate'),
     ])
 
 
 @app.callback(
-    Output('n-clusters-slider-output-container', 'children'),
-    Input('n-clusters-slider', 'value'))
+    Output(DIV_N_CLUSTERS, 'children'),
+    Input(SLIDER_N_CLUSTERS, 'value'))
 def update_output(value):
     return 'You have selected "{}"'.format(value)
