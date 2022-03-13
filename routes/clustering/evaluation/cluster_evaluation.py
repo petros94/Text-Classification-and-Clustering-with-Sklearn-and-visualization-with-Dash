@@ -13,14 +13,16 @@ cluster_eval = html.Div([
     html.Div(id=DIV_EVALUATION)
 ])
 
+
 @app.callback(
+    Output(LOADING_EVAL_MODEL_OUTPUT, "children"),
     Output(DIV_EVALUATION, 'children'),
     Input(BUTTON_SELECT_CLUSTERS, 'n_clicks'),
     State(DROPDOWN_FILES, 'value'),
     State(SLIDER_N_CLUSTERS, 'value')
 )
 def update_evaluation(n_clicks, filename, n_clusters):
-    if filename is None or n_clicks<=0:
+    if filename is None or n_clicks <= 0:
         raise PreventUpdate
     print("Confirm and continue {}".format(filename))
     clustered_data, top_terms, fig, img_sil, model_id = evaluate_cluster(n_clusters, filename)
@@ -40,9 +42,10 @@ def update_evaluation(n_clicks, filename, n_clusters):
             ])
         ]))
     print("returning update_evaluation")
-    return html.Div([
+    return n_clusters, html.Div([
         html.H4("Cluster Evaluation"),
-        html.P("Use the information below to evaluate the cluster (Data points per cluster, silhouette score and samples per cluster)"),
+        html.P(
+            "Use the information below to evaluate the cluster (Data points per cluster, silhouette score and samples per cluster)"),
         dbc.Row([
             dbc.Col([dcc.Graph(figure=fig)], xs=6),
             dbc.Col([html.Img(id='example', src=img_sil, style={'width': '100%'})], xs=6)
@@ -51,6 +54,7 @@ def update_evaluation(n_clicks, filename, n_clusters):
         html.Br(),
         html.Br(),
         html.H4("Label the clusters"),
+        html.P("Give the clusters a human-friendly name based on their content"),
         dbc.Row([
             dcc.Store(id=STORE_CLUSTER_NAMES, data={'names': ['cluster-' + str(i) for i in range(n_clusters)]}),
             dbc.Row([
@@ -64,13 +68,15 @@ def update_evaluation(n_clicks, filename, n_clusters):
             ])
         ]),
         html.Br(),
-        html.H4("Save the model for further use / Download labeled data"),
+        html.H4("Save and Download"),
+        html.P("Save the model for further use and download the labeled dataset"),
         dcc.Input(id=INPUT_MODEL_NAME),
         dbc.Button(id=BUTTON_SAVE_MODEL, n_clicks=0, children='Save Model'),
         html.P(id=P_TEMP_MODEL_ID, children=model_id),
         dbc.Button(id=BUTTON_DOWNLOAD, n_clicks=0, children='Download Data'),
         dcc.Download(id=DOWNLOAD_DATA)
     ])
+
 
 @app.callback(
     Output(INPUT_CLUSTER_NAMES, 'value'),
@@ -92,7 +98,7 @@ def on_input_change(input_val, dr_val, data):
     if dr_val is None:
         dr_val = 0
     if input_val in [None, '']:
-        input_val = 'cluster-'+str(dr_val)
+        input_val = 'cluster-' + str(dr_val)
     data['names'][dr_val] = input_val
     return data
 
@@ -108,7 +114,7 @@ def on_input_change(input_val, dr_val, data):
 )
 def submit_save_model(n_clicks_save, model_name, filename, n_clusters, temp_model_id, cluster_names):
     print("Entered submit_save_model")
-    if n_clicks_save>0:
+    if n_clicks_save > 0:
         if model_name is None:
             model_name = randomname.get_name()
         save_model(model_name, n_clusters, filename, temp_model_id, cluster_names['names'])
@@ -118,23 +124,28 @@ def submit_save_model(n_clicks_save, model_name, filename, n_clusters, temp_mode
 
 
 @app.callback(
-    Output(DROPDOWN_MODELS, "value"),
+    [
+        Output(DROPDOWN_MODELS, "value"),
+        Output(BUTTON_MODEL_PREDICT, "disabled")
+    ],
     Input(DROPDOWN_MODELS, "options"),
     State(INPUT_MODEL_NAME, 'filename')
 )
 def update_dropdown_value(options, filename):
     print("update_dropdown_model entered with options: {}".format(options))
     if len(options) == 0:
-        raise PreventUpdate
-    return options[len(options) - 1]['value']
+        return None, True
+    return options[len(options) - 1]['value'], False
+
 
 @app.callback(
     Output(DROPDOWN_MODELS, 'options'),
     Input(DIV_MODEL_SAVED, 'children'),
+    Input(DIV_DELETED_MODEL, 'children'),
     Input(BUTTON_MODEL_PREDICT, 'n_clicks'),
 )
-def update_dropdown_options(value, n_clicks):
-    if n_clicks>0:
+def update_dropdown_options(value, value_2, n_clicks):
+    if n_clicks > 0:
         raise PreventUpdate
 
     print("Entered update_dropdown_options")

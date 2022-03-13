@@ -31,7 +31,9 @@ clustering = dbc.Container(
             ]
         ),
         dbc.Col(stored, xs=6),
-        dbc.Button(id=BUTTON_GENERATE_MODEL, n_clicks=0, children='Generate TFIDF & Tuning plots'),
+        html.Div(id=DIV_STORED_DATA_PREVIEW),
+        html.Br(),
+        dbc.Button(id=BUTTON_GENERATE_MODEL, n_clicks=0, children='Generate TFIDF & Tuning plots', disabled=True),
         dcc.Loading(
             id=LOADING_GENERATE_MODEL,
             type="default",
@@ -41,6 +43,11 @@ clustering = dbc.Container(
         html.Br(),
         html.Br(),
         cluster_tuning,
+        dcc.Loading(
+            id=LOADING_EVAL_MODEL,
+            type="default",
+            children=html.Div(id=LOADING_EVAL_MODEL_OUTPUT)
+        ),
         html.Br(),
         html.Br(),
         html.Br(),

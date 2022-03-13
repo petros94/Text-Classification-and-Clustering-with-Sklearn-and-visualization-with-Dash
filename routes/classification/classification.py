@@ -30,7 +30,9 @@ classification = dbc.Container([
         ]
     ),
     dbc.Col(stored, xs=6),
-    dbc.Button(id=BUTTON_GENERATE_MODEL, n_clicks=0, children='Generate TFIDF & Train Classifier'),
+    html.Div(id=DIV_STORED_DATA_PREVIEW),
+    html.Br(),
+    dbc.Button(id=BUTTON_GENERATE_MODEL, n_clicks=0, children='Generate TFIDF & Train Classifier', disabled=True),
     dcc.Loading(
         id=LOADING_GENERATE_MODEL,
         type="default",

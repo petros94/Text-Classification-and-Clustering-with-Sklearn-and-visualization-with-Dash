@@ -11,8 +11,10 @@ from config.cache import cache
 def find_all_classifications_models():
     return mongo.db.tcfmodels.find({}, {"_id": 1, "name": 1})
 
+
 def find_all_cluster_models():
     return mongo.db.tclmodels.find({}, {"_id": 1, "name": 1})
+
 
 def load_classification_model(model_id, temp=False):
     if temp:
@@ -48,6 +50,17 @@ def save_cluster_model(model_name, model_obj, temp=False):
         mongo.db.tclmodels.insert_one({'name': model_name, 'data': Binary(data)})
 
 
+def delete_classification_model(model_id):
+    name = mongo.db.tcfmodels.find_one({'_id': ObjectId(model_id)})['name']
+    mongo.db.tcfmodels.delete_one({'_id': ObjectId(model_id)})
+    return name
+
+
+def delete_clustering_model(model_id):
+    name = mongo.db.tclmodels.find_one({'_id': ObjectId(model_id)})['name']
+    mongo.db.tclmodels.delete_one({'_id': ObjectId(model_id)})
+    return name
+
 # Docs
 
 def find_all_classification_docs():
@@ -74,3 +87,15 @@ def insert_classification_doc(filename, content):
 
 def insert_cluster_doc(filename, content):
     return mongo.db.tcldocs.insert_one({'filename': filename, 'content': Binary(pickle.dumps(content))})
+
+
+def delete_classification_doc(doc_id):
+    filename = find_classification_doc_by_id(doc_id)['filename']
+    mongo.db.tcfdocs.delete_one({'_id': ObjectId(doc_id)})
+    return filename
+
+
+def delete_clustering_doc(doc_id):
+    filename = find_clustering_doc_by_id(doc_id)['filename']
+    mongo.db.tcldocs.delete_one({'_id': ObjectId(doc_id)})
+    return filename

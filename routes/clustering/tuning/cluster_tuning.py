@@ -40,7 +40,7 @@ def update_output(n_clicks, value):
             ], xs=6),
             html.Div([
                 dbc.Col([
-                    dcc.Slider(min=2, max=20, dots=True,
+                    dcc.Slider(min=2, max=20, dots=True, step=1,
                                value=2,
                                tooltip={"placement": "bottom", "always_visible": True},
                                id=SLIDER_N_CLUSTERS

@@ -30,8 +30,8 @@ SIDEBAR_STYLE = {
 
 sidebar = html.Div(
     [
-        html.H2("All-in-one ML", className="display-4"),
-        html.H6("Easy clustering + classification", className="display-12"),
+        html.H2("TextML", className="display-4"),
+        dbc.Row([html.H6("Easy clustering + classification for text", className="display-12")]),
         dbc.Nav(
             [
                 dbc.NavLink("Text Clustering Tool", href="/", active="exact"),

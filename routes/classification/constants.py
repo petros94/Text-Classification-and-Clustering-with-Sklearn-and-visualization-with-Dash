@@ -1,7 +1,9 @@
+BUTTON_DELETE_DATASET = 'classification-delete-dataset-button'
 BUTTON_GENERATE_MODEL = 'classification-select-button'
 BUTTON_HIDDEN = 'hidden-button-2'
 BUTTON_SAVE_MODEL = 'classification-save-model'
 BUTTON_MODEL_PREDICT = 'classification-test-model-button'
+BUTTON_DELETE_MODEL = 'classification-delete-model-button'
 
 UPLOAD_UPLOAD_DATA = 'classification-upload-data'
 
@@ -11,7 +13,9 @@ LOADING_GENERATE_MODEL_OUTPUT = 'classification-loading-output-1'
 DIV_MODEL_SAVED = 'classification-model-saved'
 DIV_UPLOAD_DATA = 'classification-output-data-upload'
 DIV_STORED_DATA_PREVIEW = 'classification-stored-data-preview'
+DIV_DELETED_DATA = 'classification-deleted-data'
 DIV_EVALUATION = 'classification-evaluation'
+DIV_DELETED_MODEL = 'classification-deleted-model'
 DIV_CLASS_PROBS = 'class-probs'
 
 DROPDOWN_FILES = 'classification-demo-dropdown'

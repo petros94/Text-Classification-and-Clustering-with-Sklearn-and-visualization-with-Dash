@@ -5,10 +5,9 @@ import plotly.express as px
 from dash.exceptions import PreventUpdate
 
 from app import app
-from routes.classification.constants import DROPDOWN_MODELS, TEXTAREA_MODEL_PREDICT, BUTTON_MODEL_PREDICT, \
-    DIV_CLASS_PROBS, DIV_MODEL_SAVED
+from routes.classification.constants import *
 from services.classification import predict_text_label
-from services.storage import find_all_classifications_models
+from services.storage import find_all_classifications_models, delete_classification_model
 
 testing = html.Div([
     html.H4("Test classification"),
@@ -16,14 +15,22 @@ testing = html.Div([
     dbc.Row([
         dbc.Col([
             html.P("Choose model:"),
-            dcc.Dropdown(id=DROPDOWN_MODELS)
+            dbc.Row([
+                dbc.Col([
+                    dcc.Dropdown(id=DROPDOWN_MODELS)
+                ], xs=8),
+                dbc.Col([
+                    dbc.Button(id=BUTTON_DELETE_MODEL, children='Delete', n_clicks=0, color="danger", outline=True)
+                ], xs=4),
+            ]),
+            html.Div(id=DIV_DELETED_MODEL),
         ]),
         dbc.Col([
             dcc.Textarea(
                 id=TEXTAREA_MODEL_PREDICT,
                 style={'width': '100%', 'height': 200},
             ),
-            dbc.Button(children='Submit', id=BUTTON_MODEL_PREDICT, n_clicks=0),
+            dbc.Button(children='Submit', id=BUTTON_MODEL_PREDICT, n_clicks=0, disabled=True),
         ])
     ]),
     html.Div(id=DIV_CLASS_PROBS)
@@ -43,25 +50,40 @@ def test_model(n_clicks, model, value):
         fig = px.bar(pd.DataFrame(pred), x='label', y='pred')
         return dcc.Graph(figure=fig)
 
+
 @app.callback(
-    Output(DROPDOWN_MODELS, "value"),
+    [
+        Output(DROPDOWN_MODELS, "value"),
+        Output(BUTTON_MODEL_PREDICT, "disabled")
+    ],
     Input(DROPDOWN_MODELS, "options"),
 )
 def update_dropdown_value(options):
     print("update_dropdown_model entered with options: {}".format(options))
     if len(options) == 0:
-        raise PreventUpdate
-    return options[len(options)-1]['value']
+        return None, True
+    return options[len(options) - 1]['value'], False
+
 
 @app.callback(
     Output(DROPDOWN_MODELS, 'options'),
     Input(DIV_MODEL_SAVED, 'children'),
-    Input(BUTTON_MODEL_PREDICT, 'n_clicks'),
+    Input(DIV_DELETED_MODEL, 'children'),
+    Input(BUTTON_HIDDEN, 'n_clicks'),
 )
-def update_dropdown_options(value, n_clicks):
-    if n_clicks > 0:
-        raise PreventUpdate
-
+def update_dropdown_options(value, value_2, n_clicks):
     print("Entered update_dropdown_options")
     models = find_all_classifications_models()
     return list(map(lambda it: {"label": it['name'], "value": str(it['_id'])}, models))
+
+
+@app.callback(
+    Output(DIV_DELETED_MODEL, 'children'),
+    Input(BUTTON_DELETE_MODEL, "n_clicks"),
+    State(DROPDOWN_MODELS, "value")
+)
+def delete_model(n_clicks, model_id):
+    if n_clicks > 0:
+        print("called delete_model with arg: {}", model_id)
+        if model_id is not None:
+            return ["Deleted: " + delete_classification_model(model_id)]
