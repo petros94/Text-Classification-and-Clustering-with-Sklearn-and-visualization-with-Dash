@@ -143,12 +143,9 @@ def update_dropdown_value(options, filename):
     Output(DROPDOWN_MODELS, 'options'),
     Input(DIV_MODEL_SAVED, 'children'),
     Input(DIV_DELETED_MODEL, 'children'),
-    Input(BUTTON_MODEL_PREDICT, 'n_clicks'),
+    Input(BUTTON_HIDDEN, 'n_clicks'),
 )
 def update_dropdown_options(value, value_2, n_clicks):
-    if n_clicks > 0:
-        raise PreventUpdate
-
     print("Entered update_dropdown_options")
     models = find_all_cluster_models()
     return list(map(lambda it: {"label": it['name'], "value": str(it['_id'])}, models))
