@@ -1,6 +1,6 @@
 import os
 
-MONGO_URI = 'mongodb+srv://mltextapp:mltextapp@test-cluster.3l1bm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+MONGO_URI = 'mongodb://localhost:27017/test'
 CACHE_TYPE = 'SimpleCache'
 CACHE_DEFAULT_TIMEOUT = 3600
 
