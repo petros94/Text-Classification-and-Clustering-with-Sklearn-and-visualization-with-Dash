@@ -4,9 +4,9 @@ This repo offers an all-in-one tool for processing text using the most popular M
 The app runs as a microservice with an embedded server, which performs the ML functionality and offers a UI for using the tool.
 We also include a jupyter notebook for demonstrating the algorithms used (K-Means and Naive-Bayes).
 
-:rocket: Live working example here: https://ml-text-app-tydzzcuoha-oa.a.run.app/
+:rocket: **Live working example here**: https://ml-text-app-tydzzcuoha-oa.a.run.app/
 
-## Included functionality
+## :point_right: Included functionality
 
 ### Upload data
 Upload data in .json or .csv format. Depending on the file size, the algorithms may take longer to run, so we advise to start
@@ -17,6 +17,8 @@ with smaller datasets.
 * **input**: The raw text data
 * **label**(optional): The labels of the data, needed for classification.
 
+![screenshot](screenshots/capture1.png)
+
 
 ### Train and evaluate models
 
@@ -26,12 +28,15 @@ with smaller datasets.
 * Explore performance metrics
 * Save models for latter use
 
+![screenshot](screenshots/capture2.png)
+
 ### Use the models
 
 Test your saved classifier/classification models with new samples.
 
+![screenshot](screenshots/capture3.png)
 
-## Dataset
+## :bar_chart: Dataset
 
 The example data are Amazon user reviews, taken from 5 categories:
 * Movies
@@ -47,16 +52,22 @@ Also there are mixed datasets with sizes 200 and 500 per class. These are loaded
 without having to provide your own data.
 
 
-## How to run
+## :running: How to run
 
-Run the main.py file included in the root directory. This spins up a server running on localhost.
-The models and data are stored in the microservice's internal memory cache.
+The easiest way to run is with Docker Compose. Simply type
 
-> pip3 install -e .
+`docker-compose up`
 
-> python3 main.py
+and visit http://localhost:8080
+
+If you don't have docker installed then run the main.py file included in the root directory. This spins up a server running on localhost.
+You also need to have a Mongo db running on localhost.
+
+`pip3 install -e .`
+
+`python3 main.py`
 
 
-## Jupyter report and demo
+## :blue_book: Jupyter report and demo
 
 Under /demo you may find the jupyter notebook which evaluates the performance of the algorithms in the given datasets.
