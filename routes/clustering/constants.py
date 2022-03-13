@@ -36,6 +36,7 @@ INPUT_CLUSTER_NAMES = 'cluster-names-input'
 
 P_TEMP_MODEL_ID = 'cluster-temp-model-id'
 
+TEXTAREA_COMMON_WORDS = 'cluster-textarea-common-words'
 TEXTAREA_MODEL_PREDICT = 'cluster-textarea-state-example'
 
 STORE_CLUSTER_NAMES = 'cluster-names'

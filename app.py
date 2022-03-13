@@ -14,7 +14,9 @@ cache.init_app(app.server,
                config={
                    "DEBUG": True,
                    "CACHE_TYPE": CACHE_TYPE,
-                   "CACHE_DEFAULT_TIMEOUT": CACHE_DEFAULT_TIMEOUT
+                   "CACHE_DEFAULT_TIMEOUT": CACHE_DEFAULT_TIMEOUT,
+                   "CACHE_DIR": CACHE_DIR,
+                   "CACHE_THRESHOLD": CACHE_THRESHOLD,
                })
 
 mongo.init_app(app.server, uri=MONGO_URI)

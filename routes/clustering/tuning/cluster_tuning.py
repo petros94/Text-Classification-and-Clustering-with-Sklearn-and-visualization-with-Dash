@@ -12,14 +12,15 @@ cluster_tuning = html.Div(id=DIV_TUNING)
     Output(LOADING_GENERATE_MODEL_OUTPUT, "children"),
     Output(DIV_TUNING, 'children'),
     Input(BUTTON_GENERATE_MODEL, 'n_clicks'),
-    State(DROPDOWN_FILES, 'value')
+    State(DROPDOWN_FILES, 'value'),
+    State(TEXTAREA_COMMON_WORDS, 'value')
 )
-def update_output(n_clicks, value):
+def update_output(n_clicks, value, words):
     if n_clicks <= 0:
         raise PreventUpdate
 
-    print("Selected ", value)
-    fig1, fig2 = generate_optimal_cluster_figures(value)
+    print("generate model ", value, words)
+    fig1, fig2 = generate_optimal_cluster_figures(value, words.replace(" ", "").split(",") if words is not None else None)
     return value, html.Div([
         dbc.Row([
             html.H4("Choose number of clusters"),

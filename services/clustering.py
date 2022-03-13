@@ -11,16 +11,16 @@ from services.storage import find_clustering_doc_by_id
 
 
 @cache.memoize()
-def generate_optimal_cluster_figures(filename):
+def generate_optimal_cluster_figures(filename, common_words):
     df = find_clustering_doc_by_id(filename)['content']
-    tcl = TextClustering()
+    tcl = TextClustering(common_words=common_words)
     tcl.generate_tfidf(df.input)
     sil_fig, sse_fig = tcl.find_optimal_clusters(20, debug=True, plot=False, fixed_size=False)
     return sil_fig, sse_fig
 
-def evaluate_cluster(n_clusters, doc_id):
+def evaluate_cluster(n_clusters, doc_id, common_words):
     df = find_clustering_doc_by_id(doc_id)['content']
-    tcl = TextClustering(cluster_size=n_clusters)
+    tcl = TextClustering(cluster_size=n_clusters, common_words=common_words)
     clustered_data, fig = tcl.train(df.input, n_clusters)
 
     top_terms = []

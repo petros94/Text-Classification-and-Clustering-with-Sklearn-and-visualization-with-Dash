@@ -19,13 +19,14 @@ cluster_eval = html.Div([
     Output(DIV_EVALUATION, 'children'),
     Input(BUTTON_SELECT_CLUSTERS, 'n_clicks'),
     State(DROPDOWN_FILES, 'value'),
-    State(SLIDER_N_CLUSTERS, 'value')
+    State(SLIDER_N_CLUSTERS, 'value'),
+    State(TEXTAREA_COMMON_WORDS, 'value')
 )
-def update_evaluation(n_clicks, filename, n_clusters):
+def update_evaluation(n_clicks, filename, n_clusters, words):
     if filename is None or n_clicks <= 0:
         raise PreventUpdate
-    print("Confirm and continue {}".format(filename))
-    clustered_data, top_terms, fig, img_sil, model_id = evaluate_cluster(n_clusters, filename)
+    print("Confirm and continue {}, {}, {}".format(filename, n_clusters, words))
+    clustered_data, top_terms, fig, img_sil, model_id = evaluate_cluster(n_clusters, filename, words.replace(" ", "").split(",") if words is not None else None)
     elements = []
 
     for term in top_terms:

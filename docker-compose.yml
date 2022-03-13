@@ -3,7 +3,7 @@ services:
   ml-app:
     build: .
     ports:
-      - "8080:80"
+      - "8080:8000"
     environment:
       - PROFILE=docker
       - VARIABLE_NAME=server

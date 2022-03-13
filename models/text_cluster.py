@@ -15,11 +15,11 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 
 class TextClustering:
-    def __init__(self, model=None, vocabulary=None, cluster_size=6, top_terms=None, cluster_names=None, clustered_data=None):
+    def __init__(self, model=None, vocabulary=None, common_words=None, cluster_size=6, top_terms=None, cluster_names=None, clustered_data=None):
         self.cluster_size = cluster_size
         self.kmeans = model
         self.clustered_data = clustered_data
-        self.tpr = TextPreprocessor(vocabulary=vocabulary)
+        self.tpr = TextPreprocessor(vocabulary=vocabulary, drop_common_words=common_words)
         self.top_terms = top_terms
         self.cluster_names = cluster_names
 

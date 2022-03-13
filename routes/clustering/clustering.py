@@ -33,6 +33,11 @@ clustering = dbc.Container(
         dbc.Col(stored, xs=6),
         html.Div(id=DIV_STORED_DATA_PREVIEW),
         html.Br(),
+        html.P("(Optionally) Enter common words that you want to exclude from the clustering process (comma-separated):"),
+        dbc.Col([
+            dcc.Textarea(id=TEXTAREA_COMMON_WORDS, style={'width': '25%', 'height': 50}),
+        ]),
+        html.Br(),
         dbc.Button(id=BUTTON_GENERATE_MODEL, n_clicks=0, children='Generate TFIDF & Tuning plots', disabled=True),
         dcc.Loading(
             id=LOADING_GENERATE_MODEL,

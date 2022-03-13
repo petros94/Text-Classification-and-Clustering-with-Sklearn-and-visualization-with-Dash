@@ -6,7 +6,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 
 
 class TextPreprocessor:
-    def  __init__(self, drop_common_words=False, vocabulary=None):
+    def  __init__(self, drop_common_words=None, vocabulary=None):
         self.punctuations = string.punctuation
         self.stop_words = spacy.lang.en.stop_words.STOP_WORDS
         self.nlp = spacy.load('en_core_web_sm')
@@ -24,7 +24,7 @@ class TextPreprocessor:
         # Lemmatizing each token and converting each token into lowercase
         filtered = filter(lambda it: it.lemma_.isalpha(), mytokens) \
             if not self.drop_common_words \
-            else filter(lambda it: it.lemma_.isalpha() and it.lemma_.lower() not in ['buy', 'like', 'love', 'perfect', 'good', 'great', 'nice', 'excellent'], mytokens)
+            else filter(lambda it: it.lemma_.isalpha() and it.lemma_.lower() not in self.drop_common_words, mytokens)
         mytokens = list(map(lambda it: it.lemma_.lower().strip(), filtered))
 
         # Removing stop words
