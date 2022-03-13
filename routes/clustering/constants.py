@@ -1,6 +1,6 @@
 BUTTON_DELETE_DATASET = 'cluster-delete-dataset-button'
 BUTTON_GENERATE_MODEL = 'cluster-select-button'
-BUTTON_HIDDEN = 'hidden-button-2'
+BUTTON_HIDDEN = 'cluster-hidden-button-2'
 BUTTON_SELECT_CLUSTERS = 'select-n-clusters-button'
 BUTTON_SAVE_MODEL = 'cluster-save-model'
 BUTTON_MODEL_PREDICT = 'cluster-test-model-button'

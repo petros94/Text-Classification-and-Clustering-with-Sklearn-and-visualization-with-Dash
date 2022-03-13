@@ -1,8 +1,10 @@
-# Text Classification and Clustering with Sklearn and visualization with Dash
+# TextML: Text Classification and Clustering with Sklearn and visualization with Dash
 
 This repo offers an all-in-one tool for processing text using the most popular ML algorithms.
 The app runs as a microservice with an embedded server, which performs the ML functionality and offers a UI for using the tool.
 We also include a jupyter notebook for demonstrating the algorithms used (K-Means and Naive-Bayes).
+
+:rocket: Live working example here: https://ml-text-app-tydzzcuoha-oa.a.run.app/
 
 ## Included functionality
 

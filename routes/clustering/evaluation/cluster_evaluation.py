@@ -129,10 +129,9 @@ def submit_save_model(n_clicks_save, model_name, filename, n_clusters, temp_mode
         Output(DROPDOWN_MODELS, "value"),
         Output(BUTTON_MODEL_PREDICT, "disabled")
     ],
-    Input(DROPDOWN_MODELS, "options"),
-    State(INPUT_MODEL_NAME, 'filename')
+    Input(DROPDOWN_MODELS, "options")
 )
-def update_dropdown_value(options, filename):
+def update_dropdown_value(options):
     print("update_dropdown_model entered with options: {}".format(options))
     if len(options) == 0:
         return None, True
@@ -141,12 +140,12 @@ def update_dropdown_value(options, filename):
 
 @app.callback(
     Output(DROPDOWN_MODELS, 'options'),
-    Input(DIV_MODEL_SAVED, 'children'),
+    Input(DIV_UPLOAD_DATA, 'children'),
     Input(DIV_DELETED_MODEL, 'children'),
     Input(BUTTON_HIDDEN, 'n_clicks'),
 )
 def update_dropdown_options(value, value_2, n_clicks):
-    print("Entered update_dropdown_options")
+    print("Entered model update_dropdown_options")
     models = find_all_cluster_models()
     return list(map(lambda it: {"label": it['name'], "value": str(it['_id'])}, models))
 
