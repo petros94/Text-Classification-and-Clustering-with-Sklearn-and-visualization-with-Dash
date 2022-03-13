@@ -5,7 +5,7 @@ services:
     ports:
       - "8080:80"
     environment:
-      - PROFILE=prod
+      - PROFILE=docker
       - VARIABLE_NAME=server
       - MONGO_HOST=mongo
       - MONGO_PORT=27017

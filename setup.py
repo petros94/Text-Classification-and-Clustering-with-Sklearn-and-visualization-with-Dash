@@ -15,6 +15,7 @@ setup(
         'dash_bootstrap_components',
         'flask_caching',
         'randomname',
+        'pymongo[srv]',
         'flask_pymongo',
         'sklearn',
         'spacy'
